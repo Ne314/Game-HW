@@ -15,7 +15,7 @@ process.env.DB_PASS, {
 
 const sequelize = new Sequelize({
     dialect: 'sqlite',
-    storage: 'data/database.sqlite' //kakoy path, kuda eto klast, nihua ne ponimayu
+    storage: 'data/database.sqlite'
 });
 
 sequelize.authenticate()
@@ -33,7 +33,6 @@ sequelize.authenticate()
     .catch(err =>{
         console.error('Unable to connect to the database', err);
     });
-//Blyat kak menya besit etot malenkiy ekran nouta 
 
 function InfAdd(username, score){
     Top.create({ username: "Bot", score:100}).then(top =>{
