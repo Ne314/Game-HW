@@ -1,52 +1,48 @@
-const Sequelize = require('sequelize');
-const { DatabaseError } = require('sequelize');
 
-const sequelize = new Sequelize ('database', process.env.DB_USER,
-process.env.DB_PASS, {
-    host:'localhost',
-    dialect: 'sqlite',
-    pool: {
-        max: 5,
-        min: 0,
-        idle: 10000
-    },
-    storage: 'database.sqlite'
+const express = require('express');
+const bodyParser = require('body-parser');
+const Datastore = require('nedb')
+
+const app = express();
+const port = process.env.PORT || 3000;
+
+const db = new Datastore({ filename: './data/db', autoload: true });
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(express.static('public'));
+
+app.listen(port, () => {
+    console.log(`Server listening on port ${port}!`);
 });
 
-const sequelize = new Sequelize({
-    dialect: 'sqlite',
-    storage: 'data/database.sqlite'
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/views/index.html');
 });
 
-sequelize.authenticate()
-    .then(() => {
-        console.log('Connection has been established successfully');
-        Top = sequelize.define('top', {
-            username: {
-                type: Sequelize.STRING
-            },
-        score: {
-            type: Sequelize.INTEGER
-        }
+app.get('/all', (req, res) => {
+    db.find({}, (err, docs) => {
+        res.send({"all": JSON.stringify(docs)});
+    });
+});
+
+app.get('/top/:n', (req, res) => {
+    db.find({}).sort({score: 1}).limit(req.params.n).exec((err, docs) => {
+        res.send({"top": JSON.stringify(docs)});
+    });
+});
+
+app.post('/save', (req, res) => {
+    try  {
+        let username = req.body.name.toString();
+        let score = parseInt(req.body.score);
+        db.insert({username: username, score: score}, (err, newDoc) => {   
+            console.log("New player added to db");  
+            res.json({"status":"server get data"});
         });
-    })
-    .catch(err =>{
-        console.error('Unable to connect to the database', err);
-    });
-
-function InfAdd(username, score){
-    Top.create({ username: "Bot", score:100}).then(top =>{
-        console.log("Auto-generated ID", top.id);
-    });
-}
-
-function InfTotheTop(num){
-    return Top.findAll({
-        limit: num,
-            order:[
-                ['score','DESC']
-            ]
-    }).then(tops =>{
-        console.log(tops);
-    });
-}
+    }
+    catch (e) {
+        console.log("Some error occured:" + e);
+        res.send("Wrong data recieved");
+    } 
+});

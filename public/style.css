@@ -1,0 +1,33 @@
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+canvas {
+  display: block;
+}
+
+#start-btn{
+	background: blue;
+	padding-top: 2rem;
+}
+
+.topblock {
+	position: absolute;
+  top: 50%;
+  left: 43%;
+  transform: translateX(-50%);
+}
+
+
+.top-list {
+  font-size: 1rem;
+  color: white;
+}
+
+.top-btn {
+  margin-top: 1rem;
+  background: #97affe;
+  border: 6px solid #b5b5ff;
+  border-radius: 1px;
+}
